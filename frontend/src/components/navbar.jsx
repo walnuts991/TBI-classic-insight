@@ -1,81 +1,83 @@
+import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Sun, Moon } from "lucide-react";
 
-function Navbar() {
-  const [darkMode, setDarkMode] = useState(true);
+function Navbar() { 
+  const location = useLocation();
+  const [darkMode, setDarkMode] = useState(false);
+
+  const navItems = [
+    { name: "Home", path: "/" },
+    { name: "Features", path: "/features" },
+    { name: "Dashboard", path: "/dashboard" },
+    { name: "About", path: "/about" },
+    { name: "Demo", path: "/components" },
+    { name: "Login", path: "/login" },
+      { name: "Reviews", path: "/reviews" }, 
+  ];
 
   return (
-    <nav
-      style={{
-        position: "fixed",
-        width: "100%",
-        top: 0,
-        zIndex: 100,
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "20px 50px",
-        background: darkMode
-          ? "rgba(15,23,42,0.85)"
-          : "rgba(255,255,255,0.9)",
-        color: darkMode ? "white" : "black",
-        backdropFilter: "blur(10px)",
-      }}
+    <header
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        darkMode
+          ? "bg-[#111111] text-white"
+          : "bg-[#FAF8F5] text-black"
+      } shadow-sm`}
     >
-      <h2
-        style={{
-          color: darkMode ? "#fbbf24" : "#1e293b",
-          margin: 0,
-        }}
-      >
-        Classic Insight
-      </h2>
+      <div className="max-w-7xl mx-auto flex justify-between items-center px-10 py-5">
 
-      <div style={{ display: "flex", alignItems: "center" }}>
+        {/* Logo */}
         <Link
           to="/"
-          style={{
-            color: darkMode ? "white" : "black",
-            marginRight: "25px",
-            textDecoration: "none",
-            fontWeight: "600",
-          }}
+          className="text-2xl font-extrabold tracking-wide"
         >
-          Home
+          CLASSIC INSIGHT
         </Link>
 
-        <Link
-          to="/about"
-          style={{
-            color: darkMode ? "white" : "black",
-            marginRight: "25px",
-            textDecoration: "none",
-            fontWeight: "600",
-          }}
-        >
-          Features
-        </Link>
+        {/* Navigation */}
+        <nav className="flex items-center gap-8">
 
-        <Link
-          to="/dashboard"
-          style={{
-            color: darkMode ? "white" : "black",
-            marginRight: "25px",
-            textDecoration: "none",
-            fontWeight: "600",
-          }}
-        >
-          Dashboard
-        </Link>
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`text-[15px] font-semibold transition-all duration-300 pb-1
 
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="bg-yellow-400 text-black px-3 py-1 rounded-lg ml-4"
-        >
-          {darkMode ? "☀️ Light" : "🌙 Dark"}
-        </button>
+              ${
+                location.pathname === item.path
+                  ? "text-[#C59B63] border-b-2 border-[#C59B63]"
+                  : darkMode
+                  ? "text-white hover:text-[#C59B63]"
+                  : "text-black hover:text-[#C59B63]"
+              }
+
+              `}
+            >
+              {item.name}
+            </Link>
+          ))}
+
+          {/* Theme Toggle */}
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            className={`w-14 h-8 rounded-full flex items-center px-1 transition-all duration-300 ${
+              darkMode
+                ? "bg-[#C59B63] justify-end"
+                : "bg-gray-300 justify-start"
+            }`}
+          >
+            <div className="w-6 h-6 rounded-full bg-white shadow flex items-center justify-center">
+              {darkMode ? (
+                <Moon size={14} className="text-black" />
+              ) : (
+                <Sun size={14} className="text-yellow-500" />
+              )}
+            </div>
+          </button>
+
+        </nav>
       </div>
-    </nav>
+    </header>
   );
 }
 

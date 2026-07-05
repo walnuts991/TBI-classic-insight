@@ -6,7 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Login from "./pages/login";
 import ComponentsDemo from "./pages/ComponentsDemo";
 import Reviews from "./pages/Reviews";
-
+import Features from "./pages/features";
 function App() {
   return (
     <Routes>
@@ -16,6 +16,7 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/components" element={<ComponentsDemo />} />
       <Route path="/reviews" element={<Reviews />} />
+      <Route path="/features" element={<Features />} />
     </Routes>
   );
 }

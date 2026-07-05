@@ -1,13 +1,23 @@
-function Card({ title, text }) {
+function Card({ name, review, source }) {
   return (
-     <div className="bg-sky-500 p-8 rounded-3xl text-white shadow-lg hover:-translate-y-2 transition-all duration-300">
-      <h3 className="text-3xl font-bold mb-4">
-        {title}
+    <div className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 p-8 border border-[#E7E4DD] hover:-translate-y-1">
+
+      <h3 className="text-2xl font-bold text-black">
+        {name}
       </h3>
 
-      <p className="text-lg">
-        {text}
+      <div className="text-[#C59B63] text-2xl mt-3">
+        ★★★★★
+      </div>
+
+      <p className="mt-6 text-black leading-8">
+        "{review}"
       </p>
+
+      <p className="mt-8 font-semibold text-[#C59B63]">
+        {source}
+      </p>
+
     </div>
   );
 }

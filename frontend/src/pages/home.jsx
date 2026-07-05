@@ -1,45 +1,60 @@
 import Navbar from "../components/navbar";
 import Hero from "../components/hero";
-import Footer from "../components/Footer";
 import Card from "../components/card";
-import { useNavigate } from "react-router-dom";
+import Footer from "../components/Footer";
+
 function Home() {
+  const reviews = [
+    {
+      name: "Aarav Sharma",
+      review:
+        "Excellent stay! The rooms were clean and the staff was extremely helpful.",
+      source: "Google Reviews",
+    },
+    {
+      name: "Emily Johnson",
+      review:
+        "The AI dashboard gave us valuable insights into customer satisfaction.",
+      source: "TripAdvisor",
+    },
+    {
+      name: "Rahul Mehta",
+      review:
+        "Great experience. Breakfast and service were outstanding.",
+      source: "Booking.com",
+    },
+  ];
+
   return (
     <>
       <Navbar />
+
       <Hero />
-      <div className="py-16"></div>
-    
-<div className="bg-slate-900 text-white text-center p-12 max-w-7xl mx-auto">
 
-  <h2 className="text-5xl font-bold text-yellow-400 mb-8">
-    AI Features
-  </h2>
+      <section className="bg-[#faf9f6] py-20">
+        <div className="max-w-7xl mx-auto px-6">
 
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-    
+          <h2 className="text-4xl font-bold text-center text-black mb-4">
+            What Guests Say
+          </h2>
 
-  <Card
-    title="Sentiment Analysis"
-    text="Detect positive, negative and neutral guest opinions automatically."
-  />
+          <p className="text-center text-black mb-12">
+            Real reviews collected from different hotel booking platforms.
+          </p>
 
-  <Card
-    title="Theme Detection"
-    text="Discover common complaints and recurring guest experiences."
-  />
+          <div className="grid md:grid-cols-3 gap-8">
+            {reviews.map((review, index) => (
+              <Card
+                key={index}
+                name={review.name}
+                review={review.review}
+                source={review.source}
+              />
+            ))}
+          </div>
 
-  <Card
-    title="AI Recommendations"
-    text="Get smart suggestions to improve ratings and guest satisfaction."
-  />
-
-  <Card
-    title="Trend Analysis"
-    text="Track rating changes and review patterns over time."
-  />
-</div>
-      </div>
+        </div>
+      </section>
 
       <Footer />
     </>

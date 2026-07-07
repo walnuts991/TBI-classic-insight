@@ -60,18 +60,14 @@ I selected **MongoDB Atlas** because the application stores hotel reviews as doc
 | sentiment | String |
 | createdAt | Date |
 
-> Insert your **Schema Diagram image here**
-
 Example:
 
 ```
-docs/schema.png
+<img width="1502" height="405" alt="W5_SchemaDiagram_26100168" src="https://github.com/user-attachments/assets/36f09f1b-384b-4f57-bd79-032670910473" />
+
 ```
 
-or
 
-```markdown
-![Schema Diagram](docs/schema.png)
 ```
 
 ---
@@ -104,63 +100,8 @@ backend/
 
 ---
 
-# Setup Database
 
-### Clone Repository
 
-```bash
-git clone <repository-url>
-```
-
-### Install Dependencies
-
-Frontend
-
-```bash
-npm install
-```
-
-Backend
-
-```bash
-npm install
-```
-
-### Configure Environment Variables
-
-Create a `.env` file inside the backend folder.
-
-```env
-MONGO_URI=your_mongodb_connection_string
-PORT=5000
-```
-
-### Run Backend
-
-```bash
-npm run dev
-```
-
-### Run Frontend
-
-```bash
-npm start
-```
-
----
-
-# Environment Variables
-
-Create a `.env.example` file.
-
-```env
-MONGO_URI=your_mongodb_connection_string
-PORT=5000
-```
-
-Do **not** commit your actual `.env` file.
-
----
 
 # Future Improvements
 

@@ -1,4 +1,4 @@
-import { useState } from "react";
+ import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import heroImage from "../assets/hero.png";
 import Navbar from "../components/navbar";
@@ -116,12 +116,14 @@ function GoogleMark() {
   return <span className="text-xl font-bold text-[#4285F4]">G</span>;
 }
 
-function Login() {
+function Register() {
   const navigate = useNavigate();
   const { isDark } = useTheme();
 
-  const [email, setEmail] = useState("");
+   const [hotelName, setHotelName] = useState("");
+const [email, setEmail] = useState("");
 const [password, setPassword] = useState("");
+const [confirmPassword, setConfirmPassword] = useState("");
 
   const styles = themeClasses[isDark ? "dark" : "light"];
   const linkClass = ({ isActive }) =>
@@ -131,14 +133,19 @@ const [password, setPassword] = useState("");
 
    async function handleSubmit(event) {
   event.preventDefault();
+  if (password !== confirmPassword) {
+  alert("Passwords do not match");
+  return;
+}
 
   try {
-    const response = await fetch("http://localhost:5000/api/auth/login", {
+    const response = await fetch("http://localhost:5000/api/auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        hotelName,
         email,
         password,
       }),
@@ -151,12 +158,10 @@ const [password, setPassword] = useState("");
       return;
     }
 
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("user", JSON.stringify(data.user));
+    
+    alert("Registration Successful!");
 
-    alert("Login Successful!");
-
-    navigate("/dashboard");
+    navigate("/login");
 
   } catch (error) {
     console.error(error);
@@ -224,9 +229,24 @@ const [password, setPassword] = useState("");
 
           <form onSubmit={handleSubmit} className={`rounded-2xl border p-8 md:p-14 ${styles.card}`}>
             <div>
-              <h2 className={`text-3xl font-extrabold tracking-tight ${styles.heading}`}>Welcome Back</h2>
+              <h2 className={`text-3xl font-extrabold tracking-tight ${styles.heading}`}>Create Your Account</h2>
               <div className="mt-7 h-1.5 w-20 rounded-full bg-[#C8A165]" />
             </div>
+            <label className="block">
+  <span
+    className={`text-xs font-extrabold uppercase tracking-[0.12em] ${styles.muted}`}
+  >
+    Hotel Name
+  </span>
+
+  <input
+    type="text"
+    placeholder="Enter hotel name"
+    value={hotelName}
+    onChange={(e) => setHotelName(e.target.value)}
+    className={`mt-3 h-14 w-full rounded-md border px-4 text-base font-medium outline-none transition-colors ${styles.field}`}
+  />
+</label>
 
             <div className="mt-10 space-y-7">
               <label className="block">
@@ -243,9 +263,9 @@ const [password, setPassword] = useState("");
                 </span>
               </label>
 
-              <label className="block">
+                <label className="block">
                 <span className="flex items-center justify-between">
-                  <span className={`text-xs font-extrabold uppercase tracking-[0.12em] ${styles.muted}`}>Password</span>
+                  <span className={`text-xs font-extrabold uppercase tracking-[0.12em] ${styles.muted}`}> Password</span>
                   <a href="#" className="text-sm font-bold text-[#A57942] underline-offset-4 hover:underline">
                     Forgot Password?
                   </a>
@@ -257,6 +277,24 @@ const [password, setPassword] = useState("");
   placeholder="Enter your password"
   value={password}
   onChange={(e) => setPassword(e.target.value)}
+  className={`h-14 w-full rounded-md border px-14 text-base font-medium outline-none transition-colors ${styles.field}`}
+/>
+                  <Icon name="eyeOff" className={`absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 ${styles.icon}`} />
+                </span>
+              </label>
+              
+              <label className="block">
+                <span className="flex items-center justify-between">
+                  <span className={`text-xs font-extrabold uppercase tracking-[0.12em] ${styles.muted}`}>confirm Password</span>
+               
+                </span>
+                <span className="relative mt-3 block">
+                  <Icon name="lock" className={`absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 ${styles.icon}`} />
+                 <input
+  type="password"
+  placeholder="confirm your password"
+  value={confirmPassword}
+  onChange={(e) => setConfirmPassword(e.target.value)}
   className={`h-14 w-full rounded-md border px-14 text-base font-medium outline-none transition-colors ${styles.field}`}
 />
                   <Icon name="eyeOff" className={`absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 ${styles.icon}`} />
@@ -276,7 +314,7 @@ const [password, setPassword] = useState("");
               type="submit"
               className="mt-8 h-16 w-full rounded-md bg-[#C8A165] text-base font-extrabold uppercase tracking-[0.18em] text-white shadow-[0_14px_35px_rgba(168,121,66,0.28)] transition-colors hover:bg-[#B88F55]"
             >
-              Sign in
+              Sign up
             </button>
 
             <div className="my-9 flex items-center gap-5">
@@ -304,9 +342,9 @@ const [password, setPassword] = useState("");
 
             <p className={`mt-10 text-center text-sm font-medium ${styles.body}`}>
               Don't have an account?{" "}
-              <Link to="/register" className="font-extrabold text-[#A57942] underline underline-offset-4">
+              <a href="#" className="font-extrabold text-[#A57942] underline underline-offset-4">
                 Sign Up Now
-              </Link>
+              </a>
             </p>
           </form>
         </div>
@@ -327,4 +365,4 @@ const [password, setPassword] = useState("");
   );
 }
 
-export default Login;
+export default Register;

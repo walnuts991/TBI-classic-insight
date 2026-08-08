@@ -1,86 +1,181 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
+const mongoose = require("mongoose");
+const chatRoutes = require("./routes/chatRoutes");
+
+const authRoutes = require("./routes/authRoutes");
+const connectDB = require("./config/db");
+const Review = require("./models/Review");
+const { analyzeReview } = require("./services/geminiService");
+const { protect } = require("./middleware/authMiddleware");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use("/api/auth", authRoutes);
+app.use("/api/chat", chatRoutes);
+connectDB();
 
-let reviews = [
-  {
-    id: 1,
-    hotel: "Classic Insight",
-    rating: 4.8,
-    sentiment: "Positive",
-    review: "Amazing stay!"
-  },
-  {
-    id: 2,
-    hotel: "Ocean View",
-    rating: 4.2,
-    sentiment: "Neutral",
-    review: "Nice rooms."
-  }
-];
-
+// Home Route
 app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
+  res.send("Backend is running");
 });
 
-app.get("/api/reviews", (req, res) => {
-  res.status(200).json(reviews);
+// GET All Reviews
+app.get("/api/reviews", protect, async (req, res) => {
+  try {
+   const reviews = await Review.find({
+  user: req.user._id,
 });
+    res.status(200).json(reviews);
+} catch (error) {
+  console.error("FULL ERROR:", error);
 
-app.get("/api/reviews/:id", (req, res) => {
-  const review = reviews.find(r => r.id == req.params.id);
-
-  if (!review) {
-    return res.status(404).json({ message: "Review not found" });
+  if (error.response) {
+    console.error(error.response);
   }
 
-  res.json(review);
+  res.status(500).json({
+    message: error.message,
+  });
+}
 });
 
-app.post("/api/reviews", (req, res) => {
-  const review = {
-    id: reviews.length + 1,
-    ...req.body,
-  };
+// GET Single Review
+ app.get("/api/reviews/:id", protect, async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
 
-  reviews.push(review);
+    if (!review) {
+      return res.status(404).json({
+        message: "Review not found",
+      });
+    }
 
-  res.status(201).json(review);
-});
-
-app.put("/api/reviews/:id", (req, res) => {
-  const index = reviews.findIndex(r => r.id == req.params.id);
-
-  if (index === -1) {
-    return res.status(404).json({ message: "Review not found" });
+    res.json(review);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
   }
-
-  reviews[index] = {
-    ...reviews[index],
-    ...req.body,
-  };
-
-  res.json(reviews[index]);
 });
 
-app.delete("/api/reviews/:id", (req, res) => {
-  reviews = reviews.filter(r => r.id != req.params.id);
-  res.status(204).send();
+// POST Review
+app.post("/api/reviews", protect, async (req, res) => {
+  const requestId = `${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
+  console.info("[Reviews] Create request received", { requestId, userId: req.user?._id });
+  try {
+    const { hotel, review, rating } = req.body;
+
+    if (typeof hotel !== "string" || !hotel.trim() || typeof review !== "string" || !review.trim() || !Number.isFinite(Number(rating))) {
+      console.warn("[Reviews] Invalid create payload", { requestId, hasHotel: Boolean(hotel), hasReview: Boolean(review), rating });
+      return res.status(400).json({ message: "hotel, review, and a numeric rating are required" });
+    }
+
+    // Persist the user's review before any external AI work. Gemini outages or
+    // malformed model output must never discard submitted feedback.
+    const savedReview = await Review.create({
+      hotel: hotel.trim(),
+      review: review.trim(),
+      rating: Number(rating),
+      sentiment: "Neutral",
+      user: req.user._id,
+      analysisStatus: "pending",
+    });
+    console.info("[Reviews] Review saved", { requestId, reviewId: savedReview._id });
+
+    try {
+      const aiResult = await analyzeReview(savedReview.review);
+      savedReview.aiRating = Number.isFinite(Number(aiResult.rating)) ? Number(aiResult.rating) : undefined;
+      savedReview.sentiment = aiResult.sentiment;
+      savedReview.summary = typeof aiResult.summary === "string" ? aiResult.summary : "";
+      savedReview.topics = aiResult.topics.filter((topic) => typeof topic === "string");
+      savedReview.analysisStatus = "completed";
+      savedReview.analysisError = undefined;
+      await savedReview.save();
+      console.info("[Reviews] Gemini analysis saved", { requestId, reviewId: savedReview._id });
+    } catch (analysisError) {
+      savedReview.analysisStatus = "failed";
+      savedReview.analysisError = analysisError.message;
+      await savedReview.save();
+      console.error("[Reviews] Gemini analysis failed; review retained", { requestId, reviewId: savedReview._id, error: analysisError.message });
+    }
+
+    res.status(201).json(savedReview);
+  } catch (error) {
+    console.error("[Reviews] Failed to save review", { requestId, error: error.message, stack: error.stack });
+
+    res.status(500).json({
+      message: "Failed to save review",
+    });
+  }
 });
 
-app.get("/api/search", (req, res) => {
-  const q = req.query.q?.toLowerCase() || "";
+// UPDATE Review
+app.put("/api/reviews/:id", protect, async (req, res) => {
+  try {
+    const updatedReview = await Review.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
 
-  const result = reviews.filter(r =>
-    r.hotel && r.hotel.toLowerCase().includes(q)
-  );
+    if (!updatedReview) {
+      return res.status(404).json({
+        message: "Review not found",
+      });
+    }
 
-  res.json(result);
+    res.json(updatedReview);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// DELETE Review
+app.delete("/api/reviews/:id", async (req, res) => {
+  try {
+    const deletedReview = await Review.findByIdAndDelete(req.params.id);
+
+    if (!deletedReview) {
+      return res.status(404).json({
+        message: "Review not found",
+      });
+    }
+
+    res.json({
+      message: "Review deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+});
+
+// SEARCH Reviews
+app.get("/api/search", async (req, res) => {
+  try {
+    const q = req.query.q || "";
+
+    const reviews = await Review.find({
+      hotel: {
+        $regex: q,
+        $options: "i",
+      },
+    });
+
+    res.json(reviews);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 });
 
 app.listen(process.env.PORT || 5000, () => {

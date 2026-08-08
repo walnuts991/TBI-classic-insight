@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 function Hero() {
   return (
-    <section className="bg-white py-20">
+    <section className="app-surface py-20">
       <div className="max-w-7xl mx-auto px-6">
 
         <div className="grid lg:grid-cols-2 gap-14 items-center">
@@ -18,7 +18,7 @@ function Hero() {
               Welcome To
             </h3>
 
-            <h1 className="text-6xl font-extrabold leading-tight text-black">
+            <h1 className="text-6xl font-extrabold leading-tight text-[var(--text)]">
               Classic Insight
             </h1>
 
@@ -26,7 +26,7 @@ function Hero() {
               Elevate Every Stay.
             </h2>
 
-            <p className="text-black text-xl mt-8 leading-9">
+            <p className="app-muted text-xl mt-8 leading-9">
               Transform thousands of hotel reviews into meaningful insights
               using Artificial Intelligence. Monitor guest satisfaction,
               identify trends, predict customer behaviour and make smarter

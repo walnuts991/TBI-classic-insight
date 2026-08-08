@@ -1,4 +1,6 @@
+import Navbar from "../components/navbar";
 import { useState } from "react";
+import Papa from "papaparse";
 
 const uploadedReviews = [
   {
@@ -127,14 +129,138 @@ function ReviewCard({ review }) {
 
 function Reviews() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+const [pastedReviews, setPastedReviews] = useState("");
+const [hotelName, setHotelName] = useState("");
+const [rating, setRating] = useState(5);
+const [manualReview, setManualReview] = useState("");
+const [csvReviews, setCsvReviews] = useState([]);
 
-  function handleAnalyze() {
-    setIsAnalyzing(true);
-    window.setTimeout(() => setIsAnalyzing(false), 1400);
+async function handleAnalyze() {
+ if (!pastedReviews.trim() && csvReviews.length === 0) {
+  alert("Please paste reviews or upload a CSV.");
+  return;
+}
+ 
+
+  setIsAnalyzing(true);
+
+  try {
+    let reviews = [];
+
+// Reviews from Paste Reviews
+if (pastedReviews.trim()) {
+  reviews = pastedReviews
+    .split("\n")
+    .filter((review) => review.trim() !== "")
+    .map((review) => ({
+      hotel: "Classic Insight",
+      rating: 5,
+      review,
+    }));
+}
+
+// Reviews from CSV
+if (csvReviews.length > 0) {
+  reviews = [...reviews, ...csvReviews];
+}
+for (const review of reviews) {
+  const token = localStorage.getItem("token");
+
+  const response = await fetch("http://localhost:5000/api/reviews", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      hotel: review.hotel || "Classic Insight",
+      rating: Number(review.rating) || 5,
+      review: review.review || review,
+    }),
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || data.message);
+  }
+}
+
+alert("Reviews uploaded successfully!");
+    setPastedReviews("");
+    setCsvReviews([]);
+  } catch (error) {
+    console.error(error);
+    alert("Failed to upload reviews.");
   }
 
+  setIsAnalyzing(false);
+}
+async function handleManualSubmit() {
+  if (!hotelName || !manualReview) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("token");
+
+    const response = await fetch("http://localhost:5000/api/reviews", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        hotel: hotelName,
+        rating: rating,
+        review: manualReview,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || "Failed to save review");
+    }
+
+    alert("Review submitted successfully!");
+
+    // Clear the form
+    setHotelName("");
+    setRating(5);
+    setManualReview("");
+
+  } catch (error) {
+    console.error(error);
+    alert(error.message);
+  }
+}
+function handleCSVUpload(event) {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+
+    complete: (results) => {
+      console.log(results.data);
+
+      setCsvReviews(results.data);
+
+      alert(`${results.data.length} reviews loaded successfully!`);
+    },
+  });
+}
+
+
   return (
-    <main className="min-h-screen bg-white px-5 py-8 text-left font-sans text-[#111827] md:px-8 lg:px-10">
+    <>
+    <Navbar/>
+
+    <main className="min-h-screen bg-white pt-24 px-5 pb-8 text-left font-sans text-[#111827] md:px-8 lg:px-10">
       <div className="mx-auto max-w-6xl">
         <header className="mb-8">
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-[#9A713E]">Review Intake</p>
@@ -157,7 +283,7 @@ function Reviews() {
                 <p className="mt-2 text-sm font-medium text-[#4B5563]">Supported format: .csv with hotel, rating, and review columns.</p>
                 <label className="mt-6 inline-flex cursor-pointer rounded-lg bg-[#C59B63] px-5 py-3 text-sm font-bold text-white shadow-[0_14px_30px_rgba(197,155,99,0.28)] transition-colors hover:bg-[#B88E55]">
                   Choose File
-                  <input type="file" accept=".csv" className="sr-only" />
+                  <input type="file" accept=".csv" className="sr-only" onChange={handleCSVUpload} />
                 </label>
               </div>
             </SectionCard>
@@ -167,6 +293,8 @@ function Reviews() {
                 rows="8"
                 placeholder="Paste reviews here, one review per line. Example: The room was clean and the staff was helpful."
                 className="w-full resize-none rounded-xl border border-stone-300 bg-white p-4 text-sm font-medium leading-6 text-[#111827] outline-none transition-colors placeholder:text-stone-400 focus:border-[#C59B63]"
+                value={pastedReviews}
+                onChange={(e) => setPastedReviews(e.target.value)}
               />
             </SectionCard>
           </div>
@@ -175,33 +303,42 @@ function Reviews() {
             <SectionCard icon="edit" title="Manual Review Entry" description="Add a single review when managers receive direct feedback.">
               <div className="space-y-5">
                 <FieldLabel label="Hotel Name">
-                  <input
-                    type="text"
-                    placeholder="Classic Insight"
-                    className="h-12 w-full rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-[#111827] outline-none transition-colors placeholder:text-stone-400 focus:border-[#C59B63]"
-                  />
+                 <input
+  type="text"
+  placeholder="Classic Insight"
+  value={hotelName}
+  onChange={(e) => setHotelName(e.target.value)}
+  className="h-12 w-full rounded-xl border border-stone-300 bg-white px-4 text-sm font-medium text-[#111827] outline-none transition-colors placeholder:text-stone-400 focus:border-[#C59B63]"
+/> 
                 </FieldLabel>
 
                 <FieldLabel label="Rating">
-                  <select className="h-12 w-full rounded-xl border border-stone-300 bg-white px-4 text-sm font-bold text-[#374151] outline-none transition-colors focus:border-[#C59B63]">
-                    <option>5 - Excellent</option>
-                    <option>4 - Good</option>
-                    <option>3 - Average</option>
-                    <option>2 - Poor</option>
-                    <option>1 - Critical</option>
+                  <select
+                    value={rating}
+                    onChange={(e) => setRating(Number(e.target.value))}
+                    className="h-12 w-full rounded-xl border border-stone-300 bg-white px-4 text-sm font-bold text-[#374151] outline-none transition-colors focus:border-[#C59B63]"
+                  >
+                  <option value={5}>5 - Excellent</option>
+<option value={4}>4 - Good</option>
+<option value={3}>3 - Average</option>
+<option value={2}>2 - Poor</option>
+<option value={1}>1 - Critical</option>
                   </select>
                 </FieldLabel>
 
                 <FieldLabel label="Review">
-                  <textarea
-                    rows="6"
-                    placeholder="Enter the guest review..."
-                    className="w-full resize-none rounded-xl border border-stone-300 bg-white p-4 text-sm font-medium leading-6 text-[#111827] outline-none transition-colors placeholder:text-stone-400 focus:border-[#C59B63]"
-                  />
+                 <textarea
+  rows="6"
+  value={manualReview}
+  onChange={(e) => setManualReview(e.target.value)}
+  placeholder="Enter the guest review..."
+  className="w-full resize-none rounded-xl border border-stone-300 bg-white p-4 text-sm font-medium leading-6 text-[#111827] outline-none transition-colors placeholder:text-stone-400 focus:border-[#C59B63]"
+/>
                 </FieldLabel>
 
                 <button
                   type="button"
+                  onClick={handleManualSubmit}
                   className="w-full rounded-xl bg-[#111827] px-5 py-3 text-sm font-bold text-white shadow-[0_14px_30px_rgba(17,24,39,0.18)] transition-colors hover:bg-[#1F2937]"
                 >
                   Submit Review
@@ -238,6 +375,7 @@ function Reviews() {
         </SectionCard>
       </div>
     </main>
+    </>
   );
 }
 

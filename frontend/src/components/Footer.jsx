@@ -1,17 +1,7 @@
 function Footer() {
-    return (
-        <footer
-          style={{
-            textAlign: "center",
-            padding: "30px",
-            background: "#020617",
-          }}
-          >
-            <p>© 2026 Classic Insight. All rights reserved.
-                |AI Hotel Analytics Platform</p>
-        
-          </footer>
-    );
+  return <footer className="app-footer border-t px-6 py-8 text-center text-sm font-medium">
+    <p>© 2026 Classic Insight · AI Hotel Analytics Platform</p>
+  </footer>;
 }
 
 export default Footer;

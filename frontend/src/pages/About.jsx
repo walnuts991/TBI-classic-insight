@@ -1,11 +1,8 @@
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
-import { useTheme } from "../Theme";
 
 function About() {
-  const { darkMode } = useTheme();
-
   return (
     <>
       <Navbar />

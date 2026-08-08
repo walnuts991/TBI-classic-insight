@@ -31,14 +31,14 @@ function Home() {
 
       <Hero />
 
-      <section className="bg-[#faf9f6] py-20">
+      <section className="app-page py-20">
         <div className="max-w-7xl mx-auto px-6">
 
-          <h2 className="text-4xl font-bold text-center text-black mb-4">
+          <h2 className="text-4xl font-bold text-center text-[var(--text)] mb-4">
             What Guests Say
           </h2>
 
-          <p className="text-center text-black mb-12">
+          <p className="app-muted text-center mb-12">
             Real reviews collected from different hotel booking platforms.
           </p>
 

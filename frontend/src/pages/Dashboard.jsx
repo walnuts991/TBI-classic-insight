@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/navbar";
-import Footer from "../components/Footer";
+import AIChat from "../components/AIChat";
+import { useTheme } from "../Theme";
 const ACCENT = "#C8A165";
 
 const navItems = [
@@ -583,24 +584,80 @@ function RecentReviewItem({ review, styles }) {
 }
 
 function Dashboard() {
-  const [theme, setTheme] = useState(() => {
-    if (typeof window === "undefined") {
-      return "light";
-    }
+  const { theme, isDark } = useTheme();
 
-    return localStorage.getItem("classicInsightTheme") || "light";
-  });
+  // ⭐ Add this
+  const [reviews, setReviews] = useState([]);
 
+  // ⭐ Add this
   useEffect(() => {
-    localStorage.setItem("classicInsightTheme", theme);
-  }, [theme]);
+  const token = localStorage.getItem("token");
 
-  const isDark = theme === "dark";
+  fetch("http://localhost:5000/api/reviews", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error("Failed to fetch reviews");
+      }
+      return res.json();
+    })
+    .then((data) => setReviews(data))
+    .catch((err) => console.error(err));
+}, []);
+  // ⭐ Add this
+  const totalReviews = reviews.length;
+
+  const averageRating =
+    reviews.length > 0
+      ? (
+          reviews.reduce((sum, review) => sum + review.rating, 0) /
+          reviews.length
+        ).toFixed(1)
+      : 0;
+
+  const positiveReviews = reviews.filter(
+    (r) => r.sentiment === "Positive"
+  ).length;
+
+  const neutralReviews = reviews.filter(
+    (r) => r.sentiment === "Neutral"
+  ).length;
+
+  const negativeReviews = reviews.filter(
+    (r) => r.sentiment === "Negative"
+  ).length;
+
+  const dashboardMetrics = [
+  {
+    ...metrics[0],
+    value: totalReviews.toString(),
+  },
+  {
+    ...metrics[1],
+    value: averageRating.toString(),
+  },
+  {
+    ...metrics[2],
+    value: `${Math.round(
+      reviews.length
+        ? (positiveReviews / reviews.length) * 100
+        : 0
+    )}%`,
+  },
+  {
+    ...metrics[3],
+    value: "100%",
+  },
+];
+
   const styles = themes[theme];
-
   return (
     <main className={`min-h-screen text-left font-sans transition-colors ${styles.page}`}>
-      <header className={`sticky top-0 z-30 flex h-20 items-center justify-between border-b px-6 lg:px-9 ${styles.header}`}>
+      <Navbar />
+      <header className={`flex h-20 items-center justify-between border-b px-6 lg:px-9 ${styles.header}`}>
         <div className="flex items-center gap-8">
           <h1 className={`text-xl font-bold tracking-tight ${styles.heading}`}>Classic Insight</h1>
           <div className={`hidden h-8 w-px md:block ${isDark ? "bg-slate-700" : "bg-stone-300"}`} />
@@ -610,15 +667,6 @@ function Dashboard() {
         </div>
 
         <div className={`flex items-center gap-3 ${styles.icon}`}>
-          <button
-            type="button"
-            onClick={() => setTheme(isDark ? "light" : "dark")}
-            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-xs font-bold transition-colors ${styles.toggle}`}
-            aria-label="Toggle color theme"
-          >
-            <Icon name={isDark ? "sun" : "moon"} className="h-4 w-4" />
-            {isDark ? "Light" : "Dark"}
-          </button>
           <button type="button" className={`rounded-full p-2 transition-colors ${styles.nav}`} aria-label="Notifications">
             <Icon name="bell" className="h-5 w-5" />
           </button>
@@ -671,7 +719,8 @@ function Dashboard() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              {metrics.map((metric) => (
+               {dashboardMetrics.map((metric) => (
+
                 <MetricCard key={metric.label} metric={metric} styles={styles} theme={theme} />
               ))}
             </div>
@@ -712,9 +761,19 @@ function Dashboard() {
             </Panel>
 
             <Panel title="Recent Reviews" className="mt-6" styles={styles}>
-              {recentReviews.map((review) => (
-                <RecentReviewItem key={review.guest} review={review} styles={styles} />
-              ))}
+              {reviews.slice(0, 5).map((review) => (
+  <RecentReviewItem
+    key={review._id}
+    review={{
+      guest: review.hotel,
+      time: "Just now",
+      text: review.review,
+      tone: review.sentiment,
+      rating: review.rating,
+    }}
+    styles={styles}
+  />
+))}
             </Panel>
 
             <footer className={`flex flex-col gap-4 py-8 text-sm font-medium md:flex-row md:items-center md:justify-between ${styles.footer}`}>
@@ -734,6 +793,7 @@ function Dashboard() {
           </div>
         </section>
       </div>
+          <AIChat />
     </main>
   );
 }

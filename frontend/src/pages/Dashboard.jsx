@@ -593,7 +593,7 @@ function Dashboard() {
   useEffect(() => {
   const token = localStorage.getItem("token");
 
-  fetch("http://localhost:5000/api/reviews", {
+  fetch(`${import.meta.env.VITE_API_URL}/api/reviews`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

@@ -166,7 +166,7 @@ if (csvReviews.length > 0) {
 for (const review of reviews) {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("http://localhost:5000/api/reviews", {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -205,7 +205,7 @@ async function handleManualSubmit() {
   try {
     const token = localStorage.getItem("token");
 
-    const response = await fetch("http://localhost:5000/api/reviews", {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/reviews`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

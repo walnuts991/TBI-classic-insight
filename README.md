@@ -451,18 +451,6 @@ Key metrics include:
 
 ---
 
-## 🤖 AI Chat
-
-> *Add screenshot here*
-
----
-
-## 📈 Sentiment Analysis
-
-> *Add screenshot here*
-
----
-
 # 🚀 Future Enhancements
 
 - Real-time dashboard analytics

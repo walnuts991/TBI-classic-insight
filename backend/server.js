@@ -47,7 +47,7 @@ app.get("/api/reviews", protect, async (req, res) => {
 // GET Single Review
  app.get("/api/reviews/:id", protect, async (req, res) => {
   try {
-    const review = await Review.findById(req.params.id);
+    const review = await Review.findOne({ _id: req.params.id, user: req.user._id });
 
     if (!review) {
       return res.status(404).json({
@@ -117,8 +117,8 @@ app.post("/api/reviews", protect, async (req, res) => {
 // UPDATE Review
 app.put("/api/reviews/:id", protect, async (req, res) => {
   try {
-    const updatedReview = await Review.findByIdAndUpdate(
-      req.params.id,
+    const updatedReview = await Review.findOneAndUpdate(
+      { _id: req.params.id, user: req.user._id },
       req.body,
       { new: true }
     );
@@ -138,9 +138,9 @@ app.put("/api/reviews/:id", protect, async (req, res) => {
 });
 
 // DELETE Review
-app.delete("/api/reviews/:id", async (req, res) => {
+app.delete("/api/reviews/:id", protect, async (req, res) => {
   try {
-    const deletedReview = await Review.findByIdAndDelete(req.params.id);
+    const deletedReview = await Review.findOneAndDelete({ _id: req.params.id, user: req.user._id });
 
     if (!deletedReview) {
       return res.status(404).json({

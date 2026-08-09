@@ -1,6 +1,9 @@
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
+import analyticsHotel from "../assets/images/hotel-analytics-overlay.jpg";
+import lightAnalyticsHotel from "../assets/images/hotel-analytics-light.jpg";
+import ThemeImage from "../components/ThemeImage";
 
 function About() {
   return (
@@ -42,10 +45,11 @@ function About() {
 
           <div>
 
-            <img
-              src="https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80"
-              alt="Luxury Hotel"
-              className="rounded-3xl shadow-2xl w-full h-[520px] object-cover"
+            <ThemeImage
+              lightSrc={lightAnalyticsHotel}
+              darkSrc={analyticsHotel}
+              alt="Luxury hotel with guest analytics overlays"
+              className="premium-about-visual reveal-on-scroll rounded-3xl shadow-2xl w-full h-[520px] object-cover"
             />
 
           </div>

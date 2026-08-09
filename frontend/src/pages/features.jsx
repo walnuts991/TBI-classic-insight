@@ -1,5 +1,9 @@
 import Navbar from "../components/navbar";
 import Footer from "../components/Footer";
+import featureIntelligence from "../assets/images/feature-intelligence.jpg";
+import dashboardVisual from "../assets/images/hotel-ai-dashboard.jpg";
+import lightAnalyticsVisual from "../assets/images/hotel-analytics-light.jpg";
+import ThemeImage from "../components/ThemeImage";
 import {
   Smile,
   Search,
@@ -58,17 +62,19 @@ export default function Features() {
         <section className="max-w-7xl mx-auto px-8 pt-20">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div>
-              <img
-                src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200"
-                alt="hotel"
-                className="rounded-2xl shadow-xl w-full h-[430px] object-cover"
+              <ThemeImage
+                lightSrc={lightAnalyticsVisual}
+                darkSrc={featureIntelligence}
+                alt="AI review intelligence feature dashboard"
+                className="premium-feature-visual reveal-on-scroll rounded-2xl shadow-xl w-full h-[430px] object-cover"
               />
             </div>
             <div>
-              <img
-                src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200"
-                alt="hotel"
-                className="rounded-2xl shadow-xl w-full h-[430px] object-cover"
+              <ThemeImage
+                lightSrc={lightAnalyticsVisual}
+                darkSrc={dashboardVisual}
+                alt="Hotel analytics and sentiment dashboard"
+                className="premium-feature-visual reveal-on-scroll rounded-2xl shadow-xl w-full h-[430px] object-cover"
               />
             </div>
           </div>

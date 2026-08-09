@@ -1,4 +1,7 @@
 import { Link } from "react-router-dom";
+import heroDashboard from "../assets/images/hotel-ai-dashboard.jpg";
+import lightHeroDashboard from "../assets/images/hotel-ai-dashboard-light.jpg";
+import ThemeImage from "./ThemeImage";
 
 function Hero() {
   return (
@@ -57,10 +60,11 @@ function Hero() {
 
           <div>
 
-            <img
-              src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80"
-              alt="Hotel"
-              className="rounded-3xl shadow-2xl w-full h-[550px] object-cover"
+            <ThemeImage
+              lightSrc={lightHeroDashboard}
+              darkSrc={heroDashboard}
+              alt="Hotel review intelligence dashboard with AI analytics"
+              className="premium-hero-visual rounded-3xl shadow-2xl w-full h-[550px] object-cover"
             />
 
           </div>

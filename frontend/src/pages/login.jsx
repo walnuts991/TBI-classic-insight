@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import heroImage from "../assets/hero.png";
+import heroImage from "../assets/images/hotel-lobby-login.jpg";
+import lightHeroImage from "../assets/images/hotel-lobby-light.jpg";
+import ThemeImage from "../components/ThemeImage";
 import Navbar from "../components/navbar";
 import { useTheme } from "../Theme";
 
@@ -205,10 +207,11 @@ const [password, setPassword] = useState("");
       <section className={`${styles.section}`}>
         <div className="mx-auto grid min-h-[calc(100vh-10rem)] max-w-7xl gap-10 px-5 py-12 md:px-10 lg:grid-cols-[1fr_0.9fr] lg:items-center lg:py-20">
           <div className={`rounded-2xl p-0 ${styles.imagePanel}`}>
-            <img
-              src={heroImage}
+            <ThemeImage
+              lightSrc={lightHeroImage}
+              darkSrc={heroImage}
               alt="Premium hotel room"
-              className="h-72 w-full rounded-2xl object-cover shadow-[0_20px_60px_rgba(17,24,39,0.12)] md:h-[460px]"
+              className="premium-login-visual h-72 w-full rounded-2xl object-cover shadow-[0_20px_60px_rgba(17,24,39,0.12)] md:h-[460px]"
             />
 
             <div className="mt-10 max-w-xl">

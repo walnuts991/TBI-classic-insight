@@ -493,11 +493,7 @@ Voice review analysis
 
 Provide standard contribution guidelines.
 
----
 
-# License
-
-MIT License.
 
 ---
 
